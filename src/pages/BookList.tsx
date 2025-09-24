@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import BookCard from '../components/BookCard';
+import { Menu } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -41,6 +42,9 @@ export default function BookList() {
   const [loading, setLoading] = useState(false);
   const [page] = useState(1);
   const [limit] = useState(50);
+
+  // mobile drawer state
+  const [showFilters, setShowFilters] = useState(false);
 
   // Fetch categories
   useEffect(() => {
@@ -110,57 +114,71 @@ export default function BookList() {
     return selectedRatings.includes(rounded);
   });
 
+  const FilterContent = (
+    <div className='bg-white border rounded-lg p-4 shadow-md w-full'>
+      <h3 className='font-bold mb-3'>FILTER</h3>
+
+      <div className='mb-4'>
+        <p className='font-semibold mb-2'>Category</p>
+        <div className='space-y-2'>
+          {categories.map((cat) => (
+            <label
+              key={cat.id}
+              className='flex items-center gap-3 cursor-pointer select-none'
+            >
+              <input
+                type='checkbox'
+                checked={categoryId === cat.id}
+                onChange={() => handleCategorySelect(cat.id)}
+              />
+              <span className='text-sm'>{cat.name}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <p className='font-semibold mb-2'>Rating</p>
+        <div className='space-y-2'>
+          {[5, 4, 3, 2, 1].map((r) => (
+            <label
+              key={r}
+              className='flex items-center gap-3 cursor-pointer select-none'
+            >
+              <input
+                type='checkbox'
+                checked={selectedRatings.includes(r)}
+                onChange={() => toggleRating(r)}
+              />
+              <div className='flex items-center gap-2'>
+                <span className='text-yellow-400'>★</span>
+                <span className='text-sm'>{r}</span>
+              </div>
+            </label>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className='max-w-[1200px] mx-auto px-4 py-8'>
-      <h1 className='text-3xl font-bold mb-6'>Book List</h1>
+      <div className='flex items-center justify-between mb-6'>
+        <h1 className='text-3xl font-bold'>Book List</h1>
+
+        {/* hamburger only on mobile */}
+        <button
+          className='md:hidden p-2 border rounded-lg'
+          onClick={() => setShowFilters(true)}
+        >
+          <Menu className='w-6 h-6' />
+        </button>
+      </div>
 
       <div className='flex flex-col md:flex-row gap-6'>
-        {/* LEFT: filter */}
-        <aside className='w-full md:w-72 md:flex-shrink-0'>
-          <div className='bg-white border rounded-lg p-4 shadow-sm'>
-            <h3 className='font-bold mb-3'>FILTER</h3>
-
-            <div className='mb-4'>
-              <p className='font-semibold mb-2'>Category</p>
-              <div className='space-y-2'>
-                {categories.map((cat) => (
-                  <label
-                    key={cat.id}
-                    className='flex items-center gap-3 cursor-pointer select-none'
-                  >
-                    <input
-                      type='checkbox'
-                      checked={categoryId === cat.id}
-                      onChange={() => handleCategorySelect(cat.id)}
-                    />
-                    <span className='text-sm'>{cat.name}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <p className='font-semibold mb-2'>Rating</p>
-              <div className='space-y-2'>
-                {[5, 4, 3, 2, 1].map((r) => (
-                  <label
-                    key={r}
-                    className='flex items-center gap-3 cursor-pointer select-none'
-                  >
-                    <input
-                      type='checkbox'
-                      checked={selectedRatings.includes(r)}
-                      onChange={() => toggleRating(r)}
-                    />
-                    <div className='flex items-center gap-2'>
-                      <span className='text-yellow-400'>★</span>
-                      <span className='text-sm'>{r}</span>
-                    </div>
-                  </label>
-                ))}
-              </div>
-            </div>
-          </div>
+        {/* LEFT: filter (desktop only) */}
+        <aside className='hidden md:block w-72 md:flex-shrink-0'>
+          {FilterContent}
         </aside>
 
         {/* RIGHT: book grid */}
@@ -168,10 +186,15 @@ export default function BookList() {
           {loading ? (
             <p>Loading books...</p>
           ) : (
-            <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6'>
+            <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6'>
               {filteredBooks.length > 0 ? (
                 filteredBooks.map((book) => (
-                  <BookCard key={book.id} book={book} />
+                  <div
+                    key={book.id}
+                    className='transform scale-95 sm:scale-100'
+                  >
+                    <BookCard book={book} />
+                  </div>
                 ))
               ) : (
                 <div className='col-span-full'>
@@ -182,6 +205,19 @@ export default function BookList() {
           )}
         </div>
       </div>
+
+      {/* mobile filter drawer */}
+      {showFilters && (
+        <div className='fixed inset-0 z-50 flex'>
+          <div className='w-72 bg-white shadow-lg p-4 overflow-y-auto'>
+            {FilterContent}
+          </div>
+          <div
+            className='flex-1 bg-black/50'
+            onClick={() => setShowFilters(false)}
+          />
+        </div>
+      )}
     </div>
   );
 }
