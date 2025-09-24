@@ -124,13 +124,6 @@ export default function Navbar() {
                   >
                     Borrowed List
                   </Link>
-                  <Link
-                    to='/reviews'
-                    className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
-                    onClick={() => setOpen(false)}
-                  >
-                    Reviews
-                  </Link>
                   <button
                     onClick={() => {
                       dispatch(logout());

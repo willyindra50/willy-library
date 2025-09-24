@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Review from '../components/Review';
 import Related from '../components/Related';
 import { useAppDispatch } from '../store/hooks';
@@ -40,6 +40,7 @@ export default function Detail() {
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!id) return;
@@ -154,14 +155,25 @@ export default function Detail() {
               Add to Cart
             </button>
 
-            {/* Borrow Book */}
-            <button className='flex-1 min-w-0 h-[48px] rounded-full bg-blue-600 hover:bg-blue-700 text-white'>
+            {/* Borrow Book → langsung ke MyCart */}
+            <button
+              onClick={() => {
+                if (book) {
+                  dispatch(
+                    addToCart({
+                      id: book.id,
+                      title: book.title,
+                      author: book.author?.name ?? 'Unknown Author',
+                      category: book.category?.name ?? 'Uncategorized',
+                      image: book.coverImage || '/recomendation.png',
+                    })
+                  );
+                  navigate('/my-cart');
+                }
+              }}
+              className='flex-1 min-w-0 h-[48px] rounded-full bg-blue-600 hover:bg-blue-700 text-white'
+            >
               Borrow Book
-            </button>
-
-            {/* Share */}
-            <button className='w-[48px] h-[48px] rounded-full border flex items-center justify-center hover:bg-gray-100'>
-              ↗
             </button>
           </div>
         </div>
