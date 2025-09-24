@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import BookCard from '../components/BookCard';
 import { Menu } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || '';
@@ -191,9 +190,31 @@ export default function BookList() {
                 filteredBooks.map((book) => (
                   <div
                     key={book.id}
-                    className='transform scale-95 sm:scale-100'
+                    onClick={() => navigate(`/books/${book.id}`)}
+                    className='w-full max-w-[180px] sm:max-w-[200px] md:max-w-[224px] mx-auto shadow rounded-lg overflow-hidden bg-white cursor-pointer hover:shadow-lg transition'
                   >
-                    <BookCard book={book} />
+                    <img
+                      src={
+                        book.coverImage && book.coverImage.trim() !== ''
+                          ? book.coverImage
+                          : '/recomendation.png'
+                      }
+                      alt={book.title}
+                      className='object-cover w-full aspect-[2/3]'
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src =
+                          '/recomendation.png';
+                      }}
+                    />
+                    <div className='p-2'>
+                      <h3 className='font-semibold truncate'>{book.title}</h3>
+                      <p className='text-sm text-gray-500 truncate'>
+                        {book.author?.name ?? 'Unknown Author'}
+                      </p>
+                      <div className='flex items-center gap-1 text-yellow-500 text-sm'>
+                        ⭐ {book.rating?.toFixed(1) ?? '0.0'}
+                      </div>
+                    </div>
                   </div>
                 ))
               ) : (
